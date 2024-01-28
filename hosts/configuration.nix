@@ -187,7 +187,7 @@ in
 
      # Browsers
      chromium
-     vivadli
+     vivaldi
 
      # Apps
      discord
