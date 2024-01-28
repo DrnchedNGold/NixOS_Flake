@@ -187,7 +187,7 @@ in
 
      # Browsers
      chromium
-     #vivadli
+     vivadli
 
      # Apps
      discord
@@ -262,7 +262,7 @@ nixpkgs.overlays = [
     discord = super.discord.overrideAttrs (
       _: { src = builtins.fetchTarball {
         url = "https://discord.com/api/download?platform=linux&format=tar.gz";
-        sha256 = "1qgb8hs315g15jz9z5ch84gn48p58vq1sprr07kap1q7kp1slhp4";  # 52 0's and run if sha256 is unknown
+        sha256 = "15pf4nmmawfc5zcpb0dkychxb8z7bvd0ssc84czjmnh3x07wz770";  # 52 0's and run if sha256 is unknown
       }; }
     );
   })

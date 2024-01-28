@@ -24,8 +24,11 @@
   # Bootloader.
   boot.loader.grub = {
     enable = true;
-    device = "/dev/sda";
+#     device = "/dev/sda";
     useOSProber = true;
+
+    devices = ["nodev"];
+    efiSupport = true;
   };
 
   # Hyprland
