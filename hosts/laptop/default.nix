@@ -22,14 +22,17 @@
   ];
 
   # Bootloader.
-  boot.loader.grub = {
-    enable = true;
-#     device = "/dev/sda";
-    useOSProber = true;
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
 
-    devices = ["nodev"];
-    efiSupport = true;
-  };
+#   boot.loader.grub = {
+#     enable = true;
+# #     device = "/dev/sda";
+#     useOSProber = true;
+#
+#     devices = ["nodev"];
+#     efiSupport = true;
+#   };
 
   # Power Management
   #Better scheduling for CPU cycles from System76
@@ -58,7 +61,8 @@
 
     };
   };
-
+  #Disables power profiles daemon
+  services.power-profiles-daemon.enable = false;
   #Enable powertop to track power info
   powerManagement.powertop.enable = true;
 
