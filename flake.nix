@@ -14,16 +14,23 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    # nixos-hardware.url = "github:nixos/nixos-hardware/master";            # Hardware Specific Configurations
     
+    home-manager = {
+      url = "github:nix-community/home-manager/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nixgl = {                                   # Fixes OpenGL With Other Distros.
       url = "github:guibou/nixGL";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    
-    home-manager = {
-      url = github:nix-community/home-manager;
-      inputs.nixpkgs.follows = "nixpkgs";
+
+    hyprland = {                                           # Official Hyprland Flake
+      url = "github:hyprwm/Hyprland";                      # Requires "hyprland.nixosModules.default" to be added the host modules
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
+    
   };
 
   outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, nixgl, ... }@inputs:  # selects what to evaluate from inputs section

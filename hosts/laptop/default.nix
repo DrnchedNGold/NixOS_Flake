@@ -34,14 +34,25 @@
 #     efiSupport = true;
 #   };
 
-  # Power Management
+  # boot.initrd.kernelModules = ["amdgpu"];
+
+
+# Power Management Settings (START)
+  powerManagement.enable = true;
+  #Enable powertop to track power info
+  powerManagement.powertop.enable = true;
   #Better scheduling for CPU cycles from System76
   services.system76-scheduler.settings.cfsProfiles.enable = true;
   
+  # tlp Settings (START)
   services.tlp = {
     enable = true;
     settings = {
-        CPU_SCALING_GOVERNOR_ON_AC = "performance";
+        # Always runs on Battery (peformance mode on AC is making laptop run hot)
+        TLP_DEFAULT_MODE = "BAT";
+        TLP_PERSISTENT_DEFAULT = 1;
+
+        # CPU_SCALING_GOVERNOR_ON_AC = "performance";
         CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
 
         # CPU_BOOST_ON_AC = 1;
@@ -61,14 +72,24 @@
 
     };
   };
-  #Disables power profiles daemon
+  #Disables power profiles daemon (needed to no conflict with tlp)
   services.power-profiles-daemon.enable = false;
-  #Enable powertop to track power info
-  powerManagement.powertop.enable = true;
+  # tlp Settings (END)
 
-  # Hyprland
-  # for NON-nvidia ONLY THIS LINE REQUIRED
-  programs.hyprland.enable = true;
+  # auto-cpufreq Settings (START)
+  # services.auto-cpufreq.enable = true;
+  # services.auto-cpufreq.settings = {
+  #   battery = {
+  #     governor = "powersave";
+  #     turbo = "never";
+  #   };
+  #   charger = {
+  #     governor = "performance";
+  #     turbo = "auto";
+  #   };
+  # };
+  # auto-cpufreq Settings (END)
+# Power Management Settings (END)
 
   environment.systemPackages = [
     # This one is simpler, configured with json and css
@@ -103,6 +124,59 @@
 
   ];
 
+  # hardware = {
+  #   # Opengl
+  #   opengl = {
+  #     enable = true;
+  #     driSupport = true;
+  #     driSupport32Bit = true;
+  #   };
+  
+  # NVIDIA SETTINGS (START)
+    # # Load nvidia driver for Xorg and Wayland
+    # services.xserver.videoDrivers = [ "nvidia" ];
+
+    # nvidia = {
+    #   # Most wayland compositors need this
+    #   modesetting.enable = true;
+
+    #   # Nvidia power management. Experimental, and can cause sleep/suspend to fail.
+    #   powerManagement.enable = false;
+    #   # Fine-grained power management. Turns off GPU when not in use.
+    #   # Experimental and only works on modern Nvidia GPUs (Turing or newer).
+    #   powerManagement.finegrained = false;
+
+    #   # Use the NVidia open source kernel module (not to be confused with the
+    #   # independent third-party "nouveau" open source driver).
+    #   # Support is limited to the Turing and later architectures. Full list of 
+    #   # supported GPUs is at: 
+    #   # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus 
+    #   # Only available from driver 515.43.04+
+    #   # Currently alpha-quality/buggy, so false is currently the recommended setting.
+    #   open = false;
+
+    #   # Enable the Nvidia settings menu,
+    #   # accessible via `nvidia-settings`.
+    #   nvidiaSettings = true;
+
+    #   # Optionally, you may need to select the appropriate driver version for your specific GPU.
+    #   package = config.boot.kernelPackages.nvidiaPackages.stable;
+
+
+    #   # FOR LAPTOP ONLY (Hybrid Graphics Nvidia Optimus PRIME)
+    #   prime = {
+    #     # Make sure to use the correct Bus ID values for your system!
+
+    #   };
+
+    # };
+
+  # };
+
+# Hyprland (START) (search Hyprland for all related sections)
+  # for NON-nvidia ONLY THIS LINE REQUIRED
+  programs.hyprland.enable = true;
+
   # Desktop portals
   xdg.portal.enable = true;
   xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
@@ -119,53 +193,13 @@
   #   # Hint electron apps to use wayland
   #   NIXOS_OZONE_WL = "1";
   # };
+# Hyperland (END) (no really - parts in other sections)
 
-  # hardware = {
-  #   # Opengl
-  #   opengl = {
-  #     enable = true;
-  #     driSupport = true;
-  #     driSupport32Bit = true;
-  #   };
-
-  #   # Load nvidia driver for Xorg and Wayland
-  #   services.xserver.videoDrivers = [ "nvidia" ];
-
-  #   nvidia = {
-  #     # Most wayland compositors need this
-  #     modesetting.enable = true;
-
-  #     # Nvidia power management. Experimental, and can cause sleep/suspend to fail.
-  #     powerManagement.enable = false;
-  #     # Fine-grained power management. Turns off GPU when not in use.
-  #     # Experimental and only works on modern Nvidia GPUs (Turing or newer).
-  #     powerManagement.finegrained = false;
-
-  #     # Use the NVidia open source kernel module (not to be confused with the
-  #     # independent third-party "nouveau" open source driver).
-  #     # Support is limited to the Turing and later architectures. Full list of 
-  #     # supported GPUs is at: 
-  #     # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus 
-  #     # Only available from driver 515.43.04+
-  #     # Currently alpha-quality/buggy, so false is currently the recommended setting.
-  #     open = false;
-
-  #     # Enable the Nvidia settings menu,
-  #     # accessible via `nvidia-settings`.
-  #     nvidiaSettings = true;
-
-  #     # Optionally, you may need to select the appropriate driver version for your specific GPU.
-  #     package = config.boot.kernelPackages.nvidiaPackages.stable;
-
-
-  #     # FOR LAPTOP ONLY (Hybrid Graphics Nvidia Optimus PRIME)
-  #     prime = {
-  #       # Make sure to use the correct Bus ID values for your system!
-
-  #     };
-
-  #   };
-
-  # };
-
+# Apps Settings (START)
+  # asusctl (START)
+  services.asusd = {
+    enable = true;
+    # enableUserService = true;   # don't know what this does so check
+  };
+# Apps Settings (END)
 }

@@ -34,9 +34,12 @@
       fsType = "vfat";
     };
 
+  boot.supportedFilesystems = [ "ntfs" ];
+
   fileSystems."/mnt/windows-partition" =
     { device = "/dev/disk/by-uuid/8C0A20ED0A20D64C";
-      fsType = "ntfs";
+      fsType = "ntfs-3g";
+      options = [ "rw" "uid=1000" ];  # (terminal)$ id
     };
 
   swapDevices = [ ];

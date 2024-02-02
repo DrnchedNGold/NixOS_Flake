@@ -40,6 +40,10 @@ in
               import ../modules/shell ++
               import ../modules/theming );
 
+
+  boot = {
+    kernelPackages = pkgs.linuxPackages_latest;	# get latest kernel
+  };
   
 # UEFI (used for larger boot drives and dual booting with Windows)
   
@@ -179,6 +183,8 @@ in
      # Hardware
      bluez    # Bluetooth support
      ntfs3g   # NTFS driver to allow writing to Windows
+     asusctl  # control daemon for ASUS ROG Laptops
+     ryzenadj # Power management for Ryzen Mobile CPUs
      
      # Editors
      vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
@@ -191,8 +197,13 @@ in
 
      # Apps
      discord
+     protonvpn-gui    # Proton VPN (wrapper)
+     pywal            # Color Scheme Generator
+     zoom.us          # Video Conference App
+     webex            # Video Conference App
 
      # Programming Languages
+     gcc              # Compiler
      
      # Other Packages Found @
      # - ./<host>/default.nix
@@ -234,6 +245,7 @@ in
 ######## MY CHANGES ###################################################################################
 
 nix.settings.experimental-features = [ "nix-command" "flakes" ];
+nix.settings.auto-optimise-store = true;
 
 # Home-Manager Settings
 home-manager.users.${vars.user} = {
@@ -242,8 +254,10 @@ home-manager.users.${vars.user} = {
   };
   programs = {
     home-manager.enable = true;
+    # bash.enable = true;
   };
 };
+programs.dconf.enable = true;
 
 # Bluetooth
 hardware.bluetooth = {
