@@ -179,6 +179,7 @@ in
      neofetch         # Cool System Info
      curl
      unzip
+     ventoy-full      # Bootable USB Maker
 
      # Hardware
      bluez    # Bluetooth support
@@ -199,11 +200,14 @@ in
      discord
      protonvpn-gui    # Proton VPN (wrapper)
      pywal            # Color Scheme Generator
-     zoom.us          # Video Conference App
+     zoom-us          # Video Conference App
      webex            # Video Conference App
+     notion-app-enhanced    # Notion App
+     #sqldeveloper     # Oracle SQL Developer GUI
 
      # Programming Languages
      gcc              # Compiler
+     dotnet-sdk_8     # .NET sdk 8
      
      # Other Packages Found @
      # - ./<host>/default.nix
@@ -272,7 +276,7 @@ hardware.bluetooth = {
 nixpkgs.overlays = [
 
   # update Discord faster
-  (self: super: {
+  (self: super: {   # same as (final: prev: {
     discord = super.discord.overrideAttrs (
       _: { src = builtins.fetchTarball {
         url = "https://discord.com/api/download?platform=linux&format=tar.gz";
@@ -282,6 +286,7 @@ nixpkgs.overlays = [
   })
 
   # other overlays
+
 
 ];
 

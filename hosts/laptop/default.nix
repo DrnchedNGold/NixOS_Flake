@@ -34,9 +34,6 @@
 #     efiSupport = true;
 #   };
 
-  # boot.initrd.kernelModules = ["amdgpu"];
-
-
 # Power Management Settings (START)
   powerManagement.enable = true;
   #Enable powertop to track power info
@@ -165,8 +162,9 @@
 
     #   # FOR LAPTOP ONLY (Hybrid Graphics Nvidia Optimus PRIME)
     #   prime = {
-    #     # Make sure to use the correct Bus ID values for your system!
-
+    #     # Make sure to use the correct Bus ID values for your system! (check nixos nvidia wiki)
+    #     amdgpuBusId = "PCI:";
+    #     nvidiaBusId = "PCI:";
     #   };
 
     # };
