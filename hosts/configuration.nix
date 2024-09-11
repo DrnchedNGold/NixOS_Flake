@@ -25,7 +25,8 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, lib, pkgs, unstable, inputs, vars, ... }:
+# replace all instances of stable with unstable depending on which is used in flake.nix
+{ lib, config, pkgs, unstable, inputs, vars, ... }:
 
 
 let 
@@ -105,20 +106,21 @@ in
   services.xserver.enable = true;
 
   # Enable the KDE Plasma Desktop Environment.
-  services.xserver.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
+  services.displayManager.sddm.enable = true;
+  services.desktopManager.plasma6.enable = true;
+  services.displayManager.sddm.wayland.enable = true;
+  # services.displayManager.defaultSession = "plasma";
 
   # Configure keymap in X11
-  services.xserver = {
+  services.xserver.xkb = {
     layout = "us";
-    xkbVariant = "";
+    variant = "";
   };
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
 
   # Enable sound with pipewire.
-  sound.enable = true;
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -141,7 +143,7 @@ in
   users.users.${vars.user} = {
     isNormalUser = true;
     description = "${vars.user}";
-    extraGroups = [ "networkmanager" "wheel"   "video" "audio" "camera" "lp" "scanner" ];
+    extraGroups = [ "networkmanager" "wheel" "video" "audio" "camera" "lp" "scanner" ];
     #shell = pkgs.zsh;             # Default shell
 
     packages = with pkgs; [
@@ -152,11 +154,29 @@ in
   };
 
   # Enable automatic login for the user.
-  services.xserver.displayManager.autoLogin.enable = true;
-  services.xserver.displayManager.autoLogin.user = "varun";
+  services.displayManager.autoLogin.enable = true;
+  services.displayManager.autoLogin.user = "varun";
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
+
+  # Fonts
+  fonts.packages = with pkgs; [
+    carlito # NixOS
+    vegur # NixOS
+    source-code-pro
+    jetbrains-mono
+    font-awesome # Icons
+    corefonts # MS
+    noto-fonts # Google + Unicode
+    noto-fonts-cjk
+    noto-fonts-emoji
+    (nerdfonts.override {
+      fonts = [
+        "FiraCode"
+      ];
+    })
+  ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -170,27 +190,39 @@ in
     systemPackages = with pkgs; [       # System-Wide Packages
     
      # Essentials
-     kitty            # Terminal Emulator
-     btop             # Resource Manager
      git              # Version Control
-     ranger           # File Manager
-     lshw             # Hardware Config
      wget             # Retriever
-     neofetch         # Cool System Info
      curl
-     unzip
+
+     tree             # Directory Listing
+     lshw             # Hardware Config
+     p7zip            # 7zip
+     unzip            # Zip Files
+     undmg            # Extracts DMG files
+
+     # Terminal Misc.
+     kitty            # Terminal Emulator
+     cool-retro-term  # Retro Terminal Emulator
+     neofetch         # Cool System Info
+     cmatrix          # Matrix Effect
+     tmux	            # Terimainal Multiplexer
+     ranger           # File Manager
+     btop             # Resource Manager
      ventoy-full      # Bootable USB Maker
+     traceroute
 
      # Hardware
      bluez    # Bluetooth support
      ntfs3g   # NTFS driver to allow writing to Windows
      asusctl  # control daemon for ASUS ROG Laptops
      ryzenadj # Power management for Ryzen Mobile CPUs
+     fprintd  # Fingerprint Reader
      
      # Editors
      vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
      neovim
      vscode
+    #  zed-editor   # (check level of support first)
 
      # Browsers
      chromium
@@ -202,7 +234,9 @@ in
      pywal            # Color Scheme Generator
      zoom-us          # Video Conference App
      webex            # Video Conference App
+     obsidian
      notion-app-enhanced    # Notion App
+     onlyoffice-bin   # Onlyoffice (Office Suite Alternative)
      #sqldeveloper     # Oracle SQL Developer GUI
 
      # Programming Languages
@@ -244,7 +278,7 @@ in
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "23.11"; # Did you read the comment?
+  system.stateVersion = "24.05"; # Did you read the comment?
 
 ######## MY CHANGES ###################################################################################
 
@@ -254,7 +288,7 @@ nix.settings.auto-optimise-store = true;
 # Home-Manager Settings
 home-manager.users.${vars.user} = {
   home = {
-    stateVersion = "23.11";
+    stateVersion = "24.05";
   };
   programs = {
     home-manager.enable = true;
@@ -270,6 +304,15 @@ hardware.bluetooth = {
   package = pkgs.bluez;
 };
 
+# Fingerprint Reader
+services.fprintd = {
+  enable = true;
+  tod = {
+    enable = true;
+    driver = pkgs.libfprint-2-tod1-goodix; # pkgs.libfprint-2-tod1-vfs0090; or pkgs.libfprint-2-tod1-goodix;
+  };
+};
+
 # Garbage Collection
 
 # Overlays
@@ -280,7 +323,7 @@ nixpkgs.overlays = [
     discord = super.discord.overrideAttrs (
       _: { src = builtins.fetchTarball {
         url = "https://discord.com/api/download?platform=linux&format=tar.gz";
-        sha256 = "15pf4nmmawfc5zcpb0dkychxb8z7bvd0ssc84czjmnh3x07wz770";  # 52 0's and run if sha256 is unknown
+        sha256 = "1zlzd5q547idvsw4gxicwicy7x1mgvvx1mpy734kxfpld0752dj1";  # 52 0's and run if sha256 is unknown
       }; }
     );
   })

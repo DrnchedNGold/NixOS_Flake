@@ -14,11 +14,12 @@
 #               └─ docker.nix
 #
 
-{ pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 {
   imports = [
     ./hardware-configuration.nix
+    ../../modules/programs/games.nix
   ];
 
   # Bootloader.
@@ -99,7 +100,7 @@
 
     # You can make your own crazy bar with Elkowar's widgets
     # It has it's own markup language
-    #pkgs.eww
+    # pkgs.eww
 
     # notification daemon
     pkgs.dunst
@@ -114,84 +115,110 @@
 
     # App Launchers
     pkgs.rofi-wayland    # Most popular
-    # wofi
+    # wofi      # gtk rofi
     # bmenu
     # fuzzel
     # tofi
 
   ];
 
-  # hardware = {
-  #   # Opengl
-  #   opengl = {
-  #     enable = true;
-  #     driSupport = true;
-  #     driSupport32Bit = true;
-  #   };
+  hardware = {
+    # Opengl? (options were renamed)
+    graphics = {
+      enable = true;
+      enable32Bit = true;
+    };
+  };
   
-  # NVIDIA SETTINGS (START)
-    # # Load nvidia driver for Xorg and Wayland
-    # services.xserver.videoDrivers = [ "nvidia" ];
+# NVIDIA SETTINGS (START)
+  # Load nvidia driver for Xorg and Wayland
+  services.xserver.videoDrivers = [ "nvidia" "displaylink" "modesetting" ];
 
-    # nvidia = {
-    #   # Most wayland compositors need this
-    #   modesetting.enable = true;
+  hardware.nvidia = {
+    # Most wayland compositors need this
+    modesetting.enable = true;
 
-    #   # Nvidia power management. Experimental, and can cause sleep/suspend to fail.
-    #   powerManagement.enable = false;
-    #   # Fine-grained power management. Turns off GPU when not in use.
-    #   # Experimental and only works on modern Nvidia GPUs (Turing or newer).
-    #   powerManagement.finegrained = false;
+    # Nvidia power management. Experimental, and can cause sleep/suspend to fail.
+    powerManagement.enable = false;
+    # Fine-grained power management. Turns off GPU when not in use.
+    # Experimental and only works on modern Nvidia GPUs (Turing or newer).
+    powerManagement.finegrained = false;
 
-    #   # Use the NVidia open source kernel module (not to be confused with the
-    #   # independent third-party "nouveau" open source driver).
-    #   # Support is limited to the Turing and later architectures. Full list of 
-    #   # supported GPUs is at: 
-    #   # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus 
-    #   # Only available from driver 515.43.04+
-    #   # Currently alpha-quality/buggy, so false is currently the recommended setting.
-    #   open = false;
+    # Use the NVidia open source kernel module (not to be confused with the
+    # independent third-party "nouveau" open source driver).
+    # Support is limited to the Turing and later architectures. Full list of 
+    # supported GPUs is at: 
+    # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus 
+    # Only available from driver 515.43.04+
+    # Currently alpha-quality/buggy, so false is currently the recommended setting.
+    open = false;
 
-    #   # Enable the Nvidia settings menu,
-    #   # accessible via `nvidia-settings`.
-    #   nvidiaSettings = true;
+    # Enable the Nvidia settings menu,
+    # accessible via `nvidia-settings`.
+    nvidiaSettings = true;  
 
-    #   # Optionally, you may need to select the appropriate driver version for your specific GPU.
-    #   package = config.boot.kernelPackages.nvidiaPackages.stable;
+    # Optionally, you may need to select the appropriate driver version for your specific GPU.
+    # package = config.boot.kernelPackages.nvidiaPackages.stable;
 
 
-    #   # FOR LAPTOP ONLY (Hybrid Graphics Nvidia Optimus PRIME)
-    #   prime = {
-    #     # Make sure to use the correct Bus ID values for your system! (check nixos nvidia wiki)
-    #     amdgpuBusId = "PCI:";
-    #     nvidiaBusId = "PCI:";
-    #   };
+    # FOR LAPTOP ONLY (Hybrid Graphics Nvidia Optimus PRIME)
+    prime = {
+      # Enable sync mode (better performance, use when plugged in to wall)
+      # sync.enable = true;
 
-    # };
+      # Enable offload mode (generally for normal use)
+      offload = {
+        enable = true;
+        # provides wrapper shell script that will tell the dedicated gpu (nvidia) to take over
+        # GENERAL: $ nvidia-offload some-game
+        # STEAM: $ nvidia-offload %command%
+        enableOffloadCmd = true;
+      };
 
-  # };
+      # Make sure to use the correct Bus ID values for your system! (check nixos nvidia wiki)
+      # Get PCI info using this command: $ nix shell nixpkgs#pciutils -c lspci | grep ' VGA '
+      # integrated
+      amdgpuBusId = "PCI:7:0:0";
+      # dedicated
+      nvidiaBusId = "PCI:1:0:0";
+    };
+  };
+
+  # specialisation that generates two entries for every generation/boot that allows you to choose between sync and offload modes
+  specialisation = {
+    gaming-time.configuration = {
+      hardware.nvidia = {
+        prime = {
+          sync.enable = true;
+          offload = {
+            enable = lib.mkForce false;
+            enableOffloadCmd = lib.mkForce false;
+          };
+        };
+      };
+    };
+  };
 
 # Hyprland (START) (search Hyprland for all related sections)
   # for NON-nvidia ONLY THIS LINE REQUIRED
-  programs.hyprland.enable = true;
+  # programs.hyprland.enable = true;
 
   # Desktop portals
   xdg.portal.enable = true;
   xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
 
-  # programs.hyprland = {
-  #   enable = true;
-  #   nvidiaPatches = true;
-  #   xwayland.enable = true;
-  # };
+  programs.hyprland = {
+    enable = true;
+    xwayland.enable = true;
+  };
 
-  # environment.sessionVariables = {
-  #   # If your cursor becomes invisible
-  #   # WLR_NO_HARDWARE_CURSORS = "1";
-  #   # Hint electron apps to use wayland
-  #   NIXOS_OZONE_WL = "1";
-  # };
-# Hyperland (END) (no really - parts in other sections)
+  environment.sessionVariables = {
+    # If your cursor becomes invisible
+    # WLR_NO_HARDWARE_CURSORS = "1";
+    # Hint electron apps to use wayland
+    NIXOS_OZONE_WL = "1";
+  };
+# Hyperland (END) (not really - parts in other sections)
 
 # Apps Settings (START)
   # asusctl (START)

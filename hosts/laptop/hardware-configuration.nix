@@ -12,7 +12,7 @@
 # and may be overwritten by future invocations.  Please make changes
 # to /etc/nixos/configuration.nix instead.
 
-{ config, lib, pkgs, modulesPath, host, ... }:
+{ config, lib, pkgs, modulesPath, vars, host, ... }:
 
 {
   imports =
@@ -25,13 +25,14 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/cef5ca58-992d-4bd9-b108-3b874fa78e8a";
+    { device = "/dev/disk/by-uuid/3489a3c8-262f-46f3-9215-faf8000ceaf2";
       fsType = "ext4";
     };
 
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/D81F-34A5";
       fsType = "vfat";
+      options = [ "fmask=0077" "dmask=0077" ];
     };
 
   boot.supportedFilesystems = [ "ntfs" ];

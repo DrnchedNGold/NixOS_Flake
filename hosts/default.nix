@@ -9,7 +9,7 @@
 #           └─ default.nix
 #
 
-{ lib, inputs, nixpkgs, nixpkgs-unstable, home-manager, vars, ... }:  # import inherited inputs from flake.nix
+{ lib, inputs, nixpkgs, nixpkgs-unstable, home-manager, nur, vars, ... }:  # import inherited inputs from flake.nix
 
 let
   system = "x86_64-linux";                                  # System Architecture
@@ -24,6 +24,11 @@ let
     config.allowUnfree = true;
   };
 
+  # stable = import nixpkgs-stable {
+  #   inherit system;
+  #   config.allowUnfree = true;
+  # };
+
   lib = nixpkgs.lib;
 in 
 {
@@ -31,13 +36,14 @@ in
     inherit system;
 
     specialArgs = {
-      inherit inputs unstable vars;
+      inherit inputs system unstable vars;
       host = {
         hostName = "laptop";
       };
     };
 
     modules = [                                  # Modules that are used
+      nur.nixosModules.nur
       ./laptop
       ./configuration.nix           # will be universal to all hosts
 
